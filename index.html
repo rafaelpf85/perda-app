@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Registrar Perda</title>
+
+  <!-- PWA (Android/Chrome) -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0d7cff">
+
+  <!-- iOS (Safari não usa manifest.json, usa estas meta tags) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Perda">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      text-align: center;
+      padding: 20px;
+    }
+    img { width: 88px; height: 88px; border-radius: 20px; }
+    .spinner {
+      width: 34px; height: 34px; border: 3px solid #2a2a2a;
+      border-top-color: #0d7cff; border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { font-size: 13px; color: #b0b0b0; }
+    button {
+      display: none;
+      background: linear-gradient(135deg, #0d7cff 0%, #00d4ff 100%);
+      border: none; color: white; padding: 13px 28px; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <img src="./icon-192.png" alt="Ícone">
+  <div class="spinner"></div>
+  <p>Abrindo formulário...</p>
+  <button id="btnAbrir" onclick="abrir()">Abrir formulário</button>
+
+  <script>
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // COLOQUE AQUI A URL DO SEU WEB APP (a que termina em /exec)
+    // Exemplo: https://script.google.com/macros/s/AKfycb.../exec
+    const APPS_SCRIPT_URL = 'COLOQUE_AQUI_A_URL_DO_SEU_APPS_SCRIPT/exec';
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    function abrir() {
+      window.location.replace(APPS_SCRIPT_URL + '?page=form');
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    }
+
+    // redireciona automaticamente; se o navegador bloquear, mostra o botão
+    setTimeout(() => {
+      try {
+        abrir();
+        setTimeout(() => { document.getElementById('btnAbrir').style.display = 'inline-block'; }, 1500);
+      } catch (e) {
+        document.getElementById('btnAbrir').style.display = 'inline-block';
+      }
+    }, 400);
+  </script>
+</body>
+</html>
