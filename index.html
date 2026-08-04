@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Dashboard de Perda</title>
+  <title>Registrar Perda</title>
 
   <!-- PWA (Android/Chrome) -->
   <link rel="manifest" href="./manifest.json">
@@ -12,70 +12,79 @@
   <!-- iOS (Safari não usa manifest.json, usa estas meta tags) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Dashboard">
+  <meta name="apple-mobile-web-app-title" content="Perda">
   <link rel="apple-touch-icon" href="./icon-192.png">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, 'Inter', sans-serif;
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #0f0f0f;
+    }
+    #app-frame {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+      background: #0f0f0f;
+    }
+    #loading {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-      color: #f0f0f0;
-      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 22px;
-      text-align: center;
-      padding: 20px;
+      z-index: 10;
+      transition: opacity 0.35s ease;
     }
-    img { width: 88px; height: 88px; border-radius: 20px; }
+    #loading.hide { opacity: 0; pointer-events: none; }
+    #loading img { width: 84px; height: 84px; border-radius: 20px; }
     .spinner {
       width: 34px; height: 34px; border: 3px solid #2a2a2a;
       border-top-color: #0d7cff; border-radius: 50%;
       animation: spin 0.9s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    p { font-size: 13px; color: #b0b0b0; }
-    button {
-      display: none;
-      background: linear-gradient(135deg, #0d7cff 0%, #00d4ff 100%);
-      border: none; color: white; padding: 13px 28px; border-radius: 10px;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-    }
+    #loading p { font-size: 13px; color: #b0b0b0; font-family: -apple-system, sans-serif; }
   </style>
 </head>
 <body>
-  <img src="./icon-192.png" alt="Ícone">
-  <div class="spinner"></div>
-  <p>Abrindo dashboard...</p>
-  <button id="btnAbrir" onclick="abrir()">Abrir dashboard</button>
+  <div id="loading">
+    <img src="./icon-192.png" alt="Ícone">
+    <div class="spinner"></div>
+    <p>Abrindo formulário...</p>
+  </div>
+
+  <iframe id="app-frame" src="" title="Registrar Perda"></iframe>
 
   <script>
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     // COLOQUE AQUI A URL DO SEU WEB APP (a que termina em /exec)
-    // Exemplo: https://script.google.com/macros/s/AKfycb.../exec
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwM66UV0Xoemed1MjHSwD7olA11NwODM3uk8oZEqGuzQ9eRxeuZTQ1tskU7PkWRl0zkLw/exec?page=dashboard';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxM368Rf6p-VMOuEiLaauUrhO7lsKvTin2Gx4ohpk-Xl37HjA1_kTYRC7Y_Cml2OmCW2Q/exec';
+    const PAGINA = 'form'; // troque para 'dashboard' se este PWA for o do supervisor
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    function abrir() {
-      window.location.replace(APPS_SCRIPT_URL + '?page=dashboard');
-    }
+    const frame = document.getElementById('app-frame');
+    const loading = document.getElementById('loading');
+
+    frame.addEventListener('load', () => {
+      loading.classList.add('hide');
+    });
+
+    frame.src = APPS_SCRIPT_URL + '?page=' + PAGINA;
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(() => {});
     }
 
-    // redireciona automaticamente; se o navegador bloquear, mostra o botão
-    setTimeout(() => {
-      try {
-        abrir();
-        setTimeout(() => { document.getElementById('btnAbrir').style.display = 'inline-block'; }, 1500);
-      } catch (e) {
-        document.getElementById('btnAbrir').style.display = 'inline-block';
-      }
-    }, 400);
+    // segurança: se o iframe demorar demais (ex: bloqueio de rede), esconde o loading
+    // mesmo assim depois de 8s pra não deixar o usuário travado numa tela infinita
+    setTimeout(() => loading.classList.add('hide'), 8000);
   </script>
 </body>
 </html>
